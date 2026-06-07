@@ -4,63 +4,23 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 
 class RegisterActivity : AppCompatActivity() {
-
-    private lateinit var fullName: TextInputEditText
-    private lateinit var email: TextInputEditText
-    private lateinit var phone: TextInputEditText
-    private lateinit var password: TextInputEditText
-    private lateinit var confirmPassword: TextInputEditText
-    private lateinit var terms: CheckBox
-    private lateinit var registerButton: Button
-    private lateinit var loginLink: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_registration_screen)
 
-        fullName = findViewById(R.id.etFullName)
-        email = findViewById(R.id.etEmail)
-        phone = findViewById(R.id.etPhone)
-        password = findViewById(R.id.etPassword)
-        confirmPassword = findViewById(R.id.etConfirmPassword)
-        terms = findViewById(R.id.cbTerms)
-        registerButton = findViewById(R.id.btnRegister)
-        loginLink = findViewById(R.id.txtLogin)
+        val registerButton = findViewById<Button>(R.id.btnRegister)
+        val loginLink = findViewById<TextView>(R.id.txtLogin)
 
         registerButton.setOnClickListener {
-
-            val name = fullName.text.toString().trim()
-            val emailText = email.text.toString().trim()
-            val phoneText = phone.text.toString().trim()
-            val pass = password.text.toString()
-            val confirmPass = confirmPassword.text.toString()
-
-            when {
-                name.isEmpty() ->
-                    showMessage("Enter Full Name")
-
-                emailText.isEmpty() ->
-                    showMessage("Enter Email Address")
-
-                phoneText.isEmpty() ->
-                    showMessage("Enter Phone Number")
-
-                pass.isEmpty() ->
-                    showMessage("Enter Password")
-
-                pass != confirmPass ->
-                    showMessage("Passwords do not match")
-
-                !terms.isChecked ->
-                    showMessage("Accept Terms & Conditions")
-
-                else ->
-                    showMessage("Registration Successful")
+            if (validateForm()) {
+                showSnackbar("Registration Successful! Please login.")
+                it.postDelayed({ finish() }, 1500)
             }
         }
 
@@ -69,7 +29,23 @@ class RegisterActivity : AppCompatActivity() {
         }
     }
 
-    private fun showMessage(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun validateForm(): Boolean {
+        val name = findViewById<TextInputEditText>(R.id.etFullName).text.toString()
+        val email = findViewById<TextInputEditText>(R.id.etEmail).text.toString()
+        val pass = findViewById<TextInputEditText>(R.id.etPassword).text.toString()
+        val confirmPass = findViewById<TextInputEditText>(R.id.etConfirmPassword).text.toString()
+        val terms = findViewById<CheckBox>(R.id.cbTerms)
+
+        if (name.isEmpty()) { showSnackbar("Enter Full Name"); return false }
+        if (email.isEmpty()) { showSnackbar("Enter Email"); return false }
+        if (pass.length < 4) { showSnackbar("Password too short"); return false }
+        if (pass != confirmPass) { showSnackbar("Passwords mismatch"); return false }
+        if (!terms.isChecked) { showSnackbar("Accept Terms & Conditions"); return false }
+        
+        return true
+    }
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show()
     }
 }

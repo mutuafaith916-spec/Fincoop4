@@ -5,106 +5,113 @@ import android.os.Bundle
 import android.util.Patterns
 import android.view.View
 import android.widget.*
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.google.android.material.materialswitch.MaterialSwitch
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
+
+class LoginViewModel(private val repository: FincoopRepository) : ViewModel() {
+    val loginState = MutableLiveData<Resource<String>>()
+
+    fun login(email: String, password: String) {
+        viewModelScope.launch {
+            loginState.value = Resource.Loading()
+            val result = repository.loginRemote(email, password)
+            loginState.value = result
+        }
+    }
+}
 
 class LoginActivity : AppCompatActivity() {
 
-    private lateinit var etEmail: TextInputEditText
-    private lateinit var etPassword: TextInputEditText
-    private lateinit var btnLogin: Button
-    private lateinit var progressBar: ProgressBar
-    private lateinit var txtForgotPassword: TextView
-    private lateinit var txtCreateAccount: TextView
-    private lateinit var cbRememberMe: CheckBox
-    private lateinit var themeSwitch: MaterialSwitch
+    private val repository by lazy { FincoopRepository(this) }
+    private val viewModel: LoginViewModel by viewModels {
+        object : ViewModelProvider.Factory {
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return LoginViewModel(repository) as T
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_screen)
 
-        etEmail = findViewById(R.id.etEmail)
-        etPassword = findViewById(R.id.etPassword)
-        btnLogin = findViewById(R.id.btnLogin)
-        progressBar = findViewById(R.id.progressBar)
-        txtForgotPassword = findViewById(R.id.txtForgotPassword)
-        txtCreateAccount = findViewById(R.id.txtCreateAccount)
-        cbRememberMe = findViewById(R.id.cbRememberMe)
-        themeSwitch = findViewById(R.id.themeSwitch)
+        setupUI()
+        observeViewModel()
+    }
 
-        setupThemeSwitch()
+    private fun setupUI() {
+        val etEmail = findViewById<TextInputEditText>(R.id.etEmail)
+        val etPassword = findViewById<TextInputEditText>(R.id.etPassword)
+        val btnLogin = findViewById<Button>(R.id.btnLogin)
+        val themeSwitch = findViewById<MaterialSwitch>(R.id.themeSwitch)
+
+        setupThemeSwitch(themeSwitch)
 
         btnLogin.setOnClickListener {
-
             val email = etEmail.text.toString().trim()
             val password = etPassword.text.toString().trim()
 
-            if (email.isEmpty()) {
-                etEmail.error = "Enter Email"
-                return@setOnClickListener
-            }
+            if (!validateInput(email, password)) return@setOnClickListener
 
-            if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                etEmail.error = "Invalid Email"
-                return@setOnClickListener
-            }
-
-            if (password.isEmpty()) {
-                etPassword.error = "Enter Password"
-                return@setOnClickListener
-            }
-
-            progressBar.visibility = View.VISIBLE
-
-            btnLogin.postDelayed({
-                progressBar.visibility = View.GONE
-
-                Toast.makeText(
-                    this,
-                    "Login Successful",
-                    Toast.LENGTH_SHORT,
-
-                ).show()
-
-                startActivity(
-                    Intent(
-                        this,
-                        DashboardActivity::class.java,
-                    ).apply {
-                        putExtra("USER_EMAIL", email)
-                    }
-                )
-
-                finish()
-
-            }, 2000)
+            viewModel.login(email, password)
         }
 
-        txtForgotPassword.setOnClickListener {
-            Toast.makeText(
-                this,
-                "Forgot Password Clicked",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-
-        txtCreateAccount.setOnClickListener {
+        findViewById<TextView>(R.id.txtCreateAccount).setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
     }
 
-    private fun setupThemeSwitch() {
-        val currentMode = AppCompatDelegate.getDefaultNightMode()
-        themeSwitch.isChecked = currentMode == AppCompatDelegate.MODE_NIGHT_YES
+    private fun validateInput(email: String, password: String): Boolean {
+        val etEmail = findViewById<TextInputEditText>(R.id.etEmail)
+        val etPassword = findViewById<TextInputEditText>(R.id.etPassword)
 
-        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            if (isChecked) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-            } else {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+        if (email.isEmpty() || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            etEmail.error = "Invalid Email"
+            return false
+        }
+        if (password.isEmpty() || password.length < 4) {
+            etPassword.error = "Password too short"
+            return false
+        }
+        return true
+    }
+
+    private fun observeViewModel() {
+        val progressBar = findViewById<ProgressBar>(R.id.progressBar)
+        
+        viewModel.loginState.observe(this) { resource ->
+            when (resource) {
+                is Resource.Loading -> progressBar.visibility = View.VISIBLE
+                is Resource.Success -> {
+                    progressBar.visibility = View.GONE
+                    startActivity(Intent(this, DashboardActivity::class.java).apply {
+                        putExtra("USER_EMAIL", resource.data)
+                    })
+                    finish()
+                }
+                is Resource.Error -> {
+                    progressBar.visibility = View.GONE
+                    Snackbar.make(findViewById(android.R.id.content), resource.message ?: "Login Failed", Snackbar.LENGTH_LONG).show()
+                }
             }
+        }
+    }
+
+    private fun setupThemeSwitch(themeSwitch: MaterialSwitch) {
+        themeSwitch.isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
+            AppCompatDelegate.setDefaultNightMode(
+                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
+            )
         }
     }
 }

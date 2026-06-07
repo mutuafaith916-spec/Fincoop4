@@ -64,4 +64,8 @@
     <string name="loan_reason_hint">Reason for Loan</string>
     <string name="terms_checkbox_label">I agree to the terms and conditions</string>
     <string name="btn_apply_loan_submit">Apply for Loan</string>
+    <string name="see_all">See All</string>
+    <string name="active_loan_balance">Active Loan Balance</string>
+    <string name="no_transactions">No transactions yet</string>
+    <string name="search_hint">Search transactions</string>
 </resources>
