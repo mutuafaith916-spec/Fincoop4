@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:attr/windowBackground">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@+id/bottomNavigation"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <!-- Profile Section -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutProfileHeader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                android:padding="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/profileImage"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:contentDescription="@string/dashboard_profile_desc"
+                    android:src="@mipmap/ic_launcher_round"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/txtWelcome"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:text="@string/welcome_user"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/profileImage"
+                    app:layout_constraintTop_toTopOf="@id/profileImage" />
+
+                <TextView
+                    android:id="@+id/txtAccountNo"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/account_no"
+                    android:textColor="#666666"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@id/txtWelcome"
+                    app:layout_constraintTop_toBottomOf="@id/txtWelcome" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Balance Cards Section -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardSavings"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/total_savings_label"
+                        android:textSize="16sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/savings_amount"
+                        android:textSize="28sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardLoan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/loan_balance_label"
+                        android:textSize="16sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/loan_amount"
+                        android:textSize="28sp"
+                        android:textStyle="bold"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/flowBalances"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                app:constraint_referenced_ids="cardSavings,cardLoan"
+                app:flow_horizontalGap="12dp"
+                app:flow_maxElementsWrap="@integer/dashboard_balance_columns"
+                app:flow_verticalGap="12dp"
+                app:flow_wrapMode="aligned"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutProfileHeader" />
+
+            <!-- Quick Actions Section -->
+            <TextView
+                android:id="@+id/labelQuickActions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/quick_actions"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/flowBalances" />
+
+            <Button
+                android:id="@+id/btnDeposit"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:text="@string/btn_deposit" />
+
+            <Button
+                android:id="@+id/btnWithdraw"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:text="@string/btn_withdraw" />
+
+            <Button
+                android:id="@+id/btnApplyLoan"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:text="@string/btn_apply_loan" />
+
+            <Button
+                android:id="@+id/btnTransfer"
+                style="@style/Widget.Material3.Button.ElevatedButton"
+                android:layout_width="0dp"
+                android:layout_height="80dp"
+                android:text="@string/btn_transfer" />
+
+            <androidx.constraintlayout.helper.widget.Flow
+                android:id="@+id/flowQuickActions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                app:constraint_referenced_ids="btnDeposit,btnWithdraw,btnApplyLoan,btnTransfer"
+                app:flow_horizontalGap="8dp"
+                app:flow_maxElementsWrap="@integer/dashboard_grid_columns"
+                app:flow_verticalGap="8dp"
+                app:flow_wrapMode="aligned"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelQuickActions" />
+
+            <!-- Recent Transactions Section -->
+            <TextView
+                android:id="@+id/labelRecentTransactions"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="@string/recent_transactions"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/flowQuickActions" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardRecentTransactions"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="16dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:foreground="?attr/selectableItemBackground"
+                app:cardCornerRadius="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/labelRecentTransactions"
+                app:layout_constraintVertical_bias="0">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trans_deposit"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trans_loan_repayment"
+                        android:paddingTop="8dp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/trans_transfer"
+                        android:paddingTop="8dp"/>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        app:elevation="8dp"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

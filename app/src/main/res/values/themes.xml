@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.Fincoop" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="android:statusBarColor">@color/primary</item>
+    </style>
+
+    <style name="Theme.Fincoop" parent="Base.Theme.Fincoop" />
+</resources>

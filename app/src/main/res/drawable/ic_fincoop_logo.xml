@@ -1,0 +1,18 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="100dp"
+    android:height="100dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Security/Shield Background -->
+    <path
+        android:fillColor="@color/primary"
+        android:pathData="M12,1L3,5v6c0,5.55 3.84,10.74 9,12 5.16,-1.26 9,-6.45 9,-12V5L12,1z" />
+    <!-- White Stylized 'F' / Financial Growth -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M7,7h10v2H9v3h7v2H9v5H7V7z" />
+    <!-- Coin/Dot for 'Cooperative' -->
+    <path
+        android:fillColor="#FFD700"
+        android:pathData="M16,16m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+</vector>
