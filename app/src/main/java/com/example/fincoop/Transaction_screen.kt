@@ -6,9 +6,11 @@ import android.text.TextWatcher
 import android.view.View
 import android.widget.EditText
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 
 class TransactionHistoryActivity : AppCompatActivity() {
 
@@ -26,12 +28,13 @@ class TransactionHistoryActivity : AppCompatActivity() {
 
     private fun setupUI() {
         val rv = findViewById<RecyclerView>(R.id.rvTransactionsFull)
-        adapter = TransactionAdapter()
+        adapter = TransactionAdapter(onLongClick = { transaction ->
+            showDeleteConfirmDialog(transaction)
+        })
         rv.layoutManager = LinearLayoutManager(this)
         rv.adapter = adapter
 
-        allTransactions = repository.getTransactions()
-        updateList(allTransactions)
+        refreshData()
 
         findViewById<View>(R.id.toolbar).setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
@@ -44,6 +47,11 @@ class TransactionHistoryActivity : AppCompatActivity() {
             }
             override fun afterTextChanged(s: Editable?) {}
         })
+    }
+
+    private fun refreshData() {
+        allTransactions = repository.getTransactions()
+        filterTransactions(findViewById<EditText>(R.id.etSearch).text.toString())
     }
 
     private fun filterTransactions(query: String) {
@@ -61,5 +69,18 @@ class TransactionHistoryActivity : AppCompatActivity() {
     private fun updateList(list: List<Transaction>) {
         adapter.submitList(list)
         findViewById<TextView>(R.id.txtEmpty).visibility = if (list.isEmpty()) View.VISIBLE else View.GONE
+    }
+
+    private fun showDeleteConfirmDialog(transaction: Transaction) {
+        AlertDialog.Builder(this)
+            .setTitle("Delete Transaction")
+            .setMessage("Are you sure you want to delete this transaction record? This will not affect your balance.")
+            .setPositiveButton("Delete") { _, _ ->
+                repository.deleteTransaction(transaction.id)
+                refreshData()
+                Snackbar.make(findViewById(android.R.id.content), "Transaction record deleted", Snackbar.LENGTH_SHORT).show()
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 }

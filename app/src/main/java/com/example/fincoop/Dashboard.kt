@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.viewModels
@@ -57,8 +58,23 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupWelcomeMessage() {
         val email = intent.getStringExtra("USER_EMAIL") ?: "User"
-        val name = email.substringBefore("@").replaceFirstChar { it.uppercase() }
+        val defaultName = email.substringBefore("@").replaceFirstChar { it.uppercase() }
+        val name = repository.getUserName(defaultName)
         findViewById<TextView>(R.id.txtWelcome).text = "Welcome, $name"
+        
+        // Set profile image if available
+        val imageUri = repository.getUserImage()
+        imageUri?.let {
+            try {
+                findViewById<ImageView>(R.id.profileImage).setImageURI(android.net.Uri.parse(it))
+            } catch (e: Exception) {}
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        setupWelcomeMessage() // Refresh name if updated in Profile
+        viewModel.loadData()
     }
 
     private fun setupRecyclerView() {
@@ -107,25 +123,69 @@ class DashboardActivity : AppCompatActivity() {
     private fun setupQuickActions() {
         findViewById<View>(R.id.actionDeposit).setOnClickListener {
             showTransactionDialog("Deposit", "Enter amount to deposit") { amount ->
-                viewModel.processTransaction(TransactionType.DEPOSIT, amount, "Deposit to Savings")
+                confirmAndAuthenticate("Deposit", "You are about to deposit KES ${String.format("%,.0f", amount)}.") {
+                    viewModel.processTransaction(TransactionType.DEPOSIT, amount, "Deposit to Savings")
+                }
             }
         }
 
         findViewById<View>(R.id.actionWithdraw).setOnClickListener {
             showTransactionDialog("Withdraw", "Enter amount to withdraw") { amount ->
-                viewModel.processTransaction(TransactionType.WITHDRAWAL, amount, "Withdrawal from Savings")
+                confirmAndAuthenticate("Withdrawal", "You are about to withdraw KES ${String.format("%,.0f", amount)}.") {
+                    viewModel.processTransaction(TransactionType.WITHDRAWAL, amount, "Withdrawal from Savings")
+                }
             }
         }
 
         findViewById<View>(R.id.actionTransfer).setOnClickListener {
             showTransferDialog { amount, phone ->
-                viewModel.processTransaction(TransactionType.TRANSFER, amount, "Transfer to $phone")
+                confirmAndAuthenticate("Transfer", "You are about to transfer KES ${String.format("%,.0f", amount)} to $phone.") {
+                    viewModel.processTransaction(TransactionType.TRANSFER, amount, "Transfer to $phone")
+                }
             }
         }
 
         findViewById<View>(R.id.actionLoan).setOnClickListener {
             startActivity(Intent(this, LoanApplicationActivity::class.java))
         }
+    }
+
+    private fun confirmAndAuthenticate(title: String, summary: String, onAuthenticated: () -> Unit) {
+        AlertDialog.Builder(this)
+            .setTitle("Confirm $title")
+            .setMessage("$summary\n\nDo you want to proceed?")
+            .setPositiveButton("Confirm") { _, _ ->
+                showPinDialog(onAuthenticated)
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showPinDialog(onAuthenticated: () -> Unit) {
+        val input = EditText(this).apply {
+            inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
+            hint = "4-digit PIN"
+            textAlignment = View.TEXT_ALIGNMENT_CENTER
+        }
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(80, 20, 80, 0)
+            addView(input)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Enter Transaction PIN")
+            .setView(container)
+            .setPositiveButton("Verify") { _, _ ->
+                val pin = input.text.toString()
+                if (repository.verifyPin(pin)) {
+                    onAuthenticated()
+                } else {
+                    showSnackbar("Incorrect PIN", true)
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun showTransactionDialog(title: String, message: String, onConfirm: (Double) -> Unit) {
@@ -210,7 +270,9 @@ class DashboardActivity : AppCompatActivity() {
 }
 
 // --- Adapter for Transactions ---
-class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
+class TransactionAdapter(
+    private val onLongClick: ((Transaction) -> Unit)? = null
+) : RecyclerView.Adapter<TransactionAdapter.ViewHolder>() {
     private var items = listOf<Transaction>()
 
     fun submitList(newItems: List<Transaction>) {
@@ -238,6 +300,11 @@ class TransactionAdapter : RecyclerView.Adapter<TransactionAdapter.ViewHolder>()
         val isPositive = item.type == TransactionType.DEPOSIT
         holder.amount.text = "${if (isPositive) "+" else "-"}KES ${String.format("%,.0f", item.amount)}"
         holder.amount.setTextColor(if (isPositive) 0xFF2E7D32.toInt() else 0xFFD32F2F.toInt())
+
+        holder.itemView.setOnLongClickListener {
+            onLongClick?.invoke(item)
+            true
+        }
     }
 
     override fun getItemCount() = items.size

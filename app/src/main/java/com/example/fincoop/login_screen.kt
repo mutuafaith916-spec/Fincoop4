@@ -7,12 +7,10 @@ import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -52,9 +50,6 @@ class LoginActivity : AppCompatActivity() {
         val etEmail = findViewById<TextInputEditText>(R.id.etEmail)
         val etPassword = findViewById<TextInputEditText>(R.id.etPassword)
         val btnLogin = findViewById<Button>(R.id.btnLogin)
-        val themeSwitch = findViewById<MaterialSwitch>(R.id.themeSwitch)
-
-        setupThemeSwitch(themeSwitch)
 
         btnLogin.setOnClickListener {
             val email = etEmail.text.toString().trim()
@@ -103,15 +98,6 @@ class LoginActivity : AppCompatActivity() {
                     Snackbar.make(findViewById(android.R.id.content), resource.message ?: "Login Failed", Snackbar.LENGTH_LONG).show()
                 }
             }
-        }
-    }
-
-    private fun setupThemeSwitch(themeSwitch: MaterialSwitch) {
-        themeSwitch.isChecked = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
-        themeSwitch.setOnCheckedChangeListener { _, isChecked ->
-            AppCompatDelegate.setDefaultNightMode(
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
-            )
         }
     }
 }

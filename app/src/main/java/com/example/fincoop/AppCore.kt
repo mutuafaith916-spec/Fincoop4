@@ -41,9 +41,45 @@ class FincoopRepository(context: Context) {
     private val KEY_SAVINGS = "savings_balance"
     private val KEY_LOAN = "loan_balance"
     private val KEY_TRANSACTIONS = "transactions_list"
+    private val KEY_USER_NAME = "user_name"
+    private val KEY_USER_PHONE = "user_phone"
+    private val KEY_USER_PIN = "user_pin"
+    private val KEY_USER_IMAGE = "user_image"
+    private val KEY_THEME_MODE = "theme_mode"
 
     fun getSavingsBalance(): Double = prefs.getFloat(KEY_SAVINGS, 25000.0f).toDouble()
     fun getLoanBalance(): Double = prefs.getFloat(KEY_LOAN, 10000.0f).toDouble()
+
+    fun getUserName(default: String): String = prefs.getString(KEY_USER_NAME, default) ?: default
+    fun getUserPhone(): String = prefs.getString(KEY_USER_PHONE, "+254 700 123 456") ?: "+254 700 123 456"
+    fun getUserImage(): String? = prefs.getString(KEY_USER_IMAGE, null)
+
+    fun isDarkMode(): Boolean = prefs.getBoolean(KEY_THEME_MODE, false)
+
+    fun setDarkMode(enabled: Boolean) {
+        prefs.edit().putBoolean(KEY_THEME_MODE, enabled).apply()
+    }
+
+    fun verifyPin(pin: String): Boolean {
+        val storedPin = prefs.getString(KEY_USER_PIN, "1234") ?: "1234"
+        return pin == storedPin
+    }
+
+    fun updatePin(newPin: String) {
+        prefs.edit().putString(KEY_USER_PIN, newPin).apply()
+    }
+
+    fun updateProfile(name: String, phone: String) {
+        prefs.edit().apply {
+            putString(KEY_USER_NAME, name)
+            putString(KEY_USER_PHONE, phone)
+            apply()
+        }
+    }
+
+    fun updateProfileImage(uri: String) {
+        prefs.edit().putString(KEY_USER_IMAGE, uri).apply()
+    }
 
     fun saveBalances(savings: Double, loan: Double) {
         prefs.edit().apply {
@@ -62,6 +98,13 @@ class FincoopRepository(context: Context) {
     fun addTransaction(transaction: Transaction) {
         val list = getTransactions().toMutableList()
         list.add(0, transaction) // Add to top
+        val json = gson.toJson(list)
+        prefs.edit().putString(KEY_TRANSACTIONS, json).apply()
+    }
+
+    fun deleteTransaction(id: String) {
+        val list = getTransactions().toMutableList()
+        list.removeAll { it.id == id }
         val json = gson.toJson(list)
         prefs.edit().putString(KEY_TRANSACTIONS, json).apply()
     }
