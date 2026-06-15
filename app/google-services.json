@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "682543327007",
+    "project_id": "fincoop-db1cf",
+    "storage_bucket": "fincoop-db1cf.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:682543327007:android:f3bd911b25bab9d19e322a",
+        "android_client_info": {
+          "package_name": "com.example.fincoop"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBYEF2iRRYf-Hkf85mBFWMjlviyhAasIWY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -24,7 +24,7 @@ import com.google.android.material.snackbar.Snackbar
 import java.text.SimpleDateFormat
 import java.util.Locale
 
-class DashboardActivity : AppCompatActivity() {
+class DashboardActivity : SecureActivity() {
 
     private val repository by lazy { FincoopRepository(this) }
     private val viewModel: DashboardViewModel by viewModels {
@@ -64,10 +64,15 @@ class DashboardActivity : AppCompatActivity() {
         
         // Set profile image if available
         val imageUri = repository.getUserImage()
-        imageUri?.let {
+        val profileImage = findViewById<ImageView>(R.id.profileImage)
+        if (imageUri != null) {
             try {
-                findViewById<ImageView>(R.id.profileImage).setImageURI(android.net.Uri.parse(it))
-            } catch (e: Exception) {}
+                profileImage.setImageURI(android.net.Uri.parse(imageUri))
+            } catch (e: Exception) {
+                profileImage.setImageResource(R.mipmap.ic_launcher_round)
+            }
+        } else {
+            profileImage.setImageResource(R.mipmap.ic_launcher_round)
         }
     }
 

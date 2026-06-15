@@ -27,7 +27,7 @@ class LoginViewModel(private val repository: FincoopRepository) : ViewModel() {
     }
 }
 
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : SecureActivity() {
 
     private val repository by lazy { FincoopRepository(this) }
     private val viewModel: LoginViewModel by viewModels {

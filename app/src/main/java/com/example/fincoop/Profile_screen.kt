@@ -18,16 +18,22 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : SecureActivity() {
 
     private val repository by lazy { FincoopRepository(this) }
     
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
-            contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            repository.updateProfileImage(it.toString())
-            findViewById<ImageView>(R.id.profileImage).setImageURI(it)
-            Snackbar.make(findViewById(android.R.id.content), "Profile picture updated", Snackbar.LENGTH_SHORT).show()
+            try {
+                contentResolver.takePersistableUriPermission(it, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                repository.updateProfileImage(it.toString())
+                findViewById<ImageView>(R.id.profileImage).setImageURI(it)
+                Snackbar.make(findViewById(android.R.id.content), "Profile picture updated", Snackbar.LENGTH_SHORT).show()
+            } catch (e: Exception) {
+                // Handle cases where permission cannot be persisted
+                repository.updateProfileImage(it.toString())
+                findViewById<ImageView>(R.id.profileImage).setImageURI(it)
+            }
         }
     }
 
@@ -50,18 +56,21 @@ class ProfileActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.txtEmail).text = email
         findViewById<TextView>(R.id.txtPhone).text = phone
         
-        imageUri?.let {
+        val profileImageView = findViewById<ImageView>(R.id.profileImage)
+        if (imageUri != null) {
             try {
-                findViewById<ImageView>(R.id.profileImage).setImageURI(Uri.parse(it))
+                profileImageView.setImageURI(Uri.parse(imageUri))
             } catch (e: Exception) {
-                // Fallback if URI is inaccessible
+                profileImageView.setImageResource(R.mipmap.ic_launcher_round)
             }
+        } else {
+            profileImageView.setImageResource(R.mipmap.ic_launcher_round)
         }
     }
 
     private fun setupClickListeners() {
         findViewById<View>(R.id.btnChangePhoto).setOnClickListener {
-            pickImage.launch("image/*")
+            showImageOptionsDialog()
         }
 
         findViewById<View>(R.id.btnEditProfile).setOnClickListener {
@@ -82,6 +91,24 @@ class ProfileActivity : AppCompatActivity() {
         findViewById<View>(R.id.profileToolbar).setOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
+    }
+
+    private fun showImageOptionsDialog() {
+        val options = arrayOf("Change Photo", "Remove Photo")
+        AlertDialog.Builder(this)
+            .setTitle("Profile Photo")
+            .setItems(options) { _, which ->
+                when (which) {
+                    0 -> pickImage.launch("image/*")
+                    1 -> {
+                        repository.deleteProfileImage()
+                        findViewById<ImageView>(R.id.profileImage).setImageResource(R.mipmap.ic_launcher_round)
+                        Snackbar.make(findViewById(android.R.id.content), "Profile picture removed", Snackbar.LENGTH_SHORT).show()
+                    }
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     private fun setupThemeSwitch() {
@@ -148,6 +175,11 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun showChangePinDialog() {
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(80, 40, 80, 0)
+        }
+
         val oldPinInput = EditText(this)
         oldPinInput.hint = "Current PIN"
         oldPinInput.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
@@ -156,12 +188,8 @@ class ProfileActivity : AppCompatActivity() {
         newPinInput.hint = "New 4-digit PIN"
         newPinInput.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_PASSWORD
         
-        val container = LinearLayout(this).apply {
-            orientation = LinearLayout.VERTICAL
-            setPadding(80, 40, 80, 0)
-            addView(oldPinInput)
-            addView(newPinInput)
-        }
+        container.addView(oldPinInput)
+        container.addView(newPinInput)
 
         AlertDialog.Builder(this)
             .setTitle("Update Transaction PIN")
