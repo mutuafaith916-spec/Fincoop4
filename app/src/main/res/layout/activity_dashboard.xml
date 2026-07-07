@@ -47,6 +47,7 @@
                     android:textColor="#212121"
                     android:textSize="20sp"
                     android:textStyle="bold"
+                    app:layout_constraintBottom_toBottomOf="@id/profileImage"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/profileImage"
                     app:layout_constraintTop_toTopOf="@id/profileImage" />
@@ -55,9 +56,7 @@
                     android:id="@+id/txtAccountNo"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Account No: FC2026001"
-                    android:textColor="#757575"
-                    android:textSize="14sp"
+                    android:visibility="gone"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@id/txtWelcome"
                     app:layout_constraintTop_toBottomOf="@id/txtWelcome" />
@@ -140,9 +139,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:columnCount="4"
+                android:columnCount="3"
                 app:layout_constraintTop_toBottomOf="@id/labelQuickActions">
 
+                <!-- Row 1 -->
                 <LinearLayout
                     android:id="@+id/actionDeposit"
                     android:layout_width="0dp"
@@ -150,6 +150,7 @@
                     android:layout_columnWeight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="8dp">
@@ -161,7 +162,7 @@
                         android:clickable="false"
                         app:backgroundTint="#E3F2FD"
                         app:elevation="0dp"
-                        app:fabSize="normal"
+                        app:fabSize="mini"
                         app:srcCompat="@android:drawable/ic_menu_add"
                         app:tint="#1976D2" />
 
@@ -170,7 +171,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Deposit"
-                        android:textSize="12sp" />
+                        android:textSize="10sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -180,6 +181,7 @@
                     android:layout_columnWeight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="8dp">
@@ -191,7 +193,7 @@
                         android:clickable="false"
                         app:backgroundTint="#FBE9E7"
                         app:elevation="0dp"
-                        app:fabSize="normal"
+                        app:fabSize="mini"
                         app:srcCompat="@android:drawable/ic_menu_revert"
                         app:tint="#D84315" />
 
@@ -200,7 +202,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Withdraw"
-                        android:textSize="12sp" />
+                        android:textSize="10sp" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -210,6 +212,7 @@
                     android:layout_columnWeight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="8dp">
@@ -221,7 +224,7 @@
                         android:clickable="false"
                         app:backgroundTint="#E8F5E9"
                         app:elevation="0dp"
-                        app:fabSize="normal"
+                        app:fabSize="mini"
                         app:srcCompat="@android:drawable/ic_menu_share"
                         app:tint="#2E7D32" />
 
@@ -230,9 +233,104 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Transfer"
-                        android:textSize="12sp" />
+                        android:textSize="10sp" />
                 </LinearLayout>
 
+                <!-- Row 2 -->
+                <LinearLayout
+                    android:id="@+id/actionRepay"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btnRepayFab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        app:backgroundTint="#F3E5F5"
+                        app:elevation="0dp"
+                        app:fabSize="mini"
+                        app:srcCompat="@android:drawable/ic_menu_save"
+                        app:tint="#7B1FA2" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Repay"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/actionChamaGroup"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btnChamaGroupFab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        app:backgroundTint="#FFF9C4"
+                        app:elevation="0dp"
+                        app:fabSize="mini"
+                        app:srcCompat="@android:drawable/ic_menu_view"
+                        app:tint="#FBC02D" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Chama Groups"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/actionBuildChama"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btnBuildChamaFab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        app:backgroundTint="#E1F5FE"
+                        app:elevation="0dp"
+                        app:fabSize="mini"
+                        app:srcCompat="@android:drawable/ic_menu_agenda"
+                        app:tint="#0288D1" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Build Chama"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <!-- Row 3 -->
                 <LinearLayout
                     android:id="@+id/actionLoan"
                     android:layout_width="0dp"
@@ -240,6 +338,7 @@
                     android:layout_columnWeight="1"
                     android:clickable="true"
                     android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
                     android:gravity="center"
                     android:orientation="vertical"
                     android:padding="8dp">
@@ -251,7 +350,7 @@
                         android:clickable="false"
                         app:backgroundTint="#FFF3E0"
                         app:elevation="0dp"
-                        app:fabSize="normal"
+                        app:fabSize="mini"
                         app:srcCompat="@android:drawable/ic_menu_edit"
                         app:tint="#EF6C00" />
 
@@ -260,7 +359,38 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:text="Loan"
-                        android:textSize="12sp" />
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/actionJoinChama"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="8dp">
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/btnJoinChamaFab"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:clickable="false"
+                        app:backgroundTint="#F1F8E9"
+                        app:elevation="0dp"
+                        app:fabSize="mini"
+                        app:srcCompat="@android:drawable/ic_menu_add"
+                        app:tint="#558B2F" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Join Chama"
+                        android:textSize="10sp" />
                 </LinearLayout>
 
             </GridLayout>

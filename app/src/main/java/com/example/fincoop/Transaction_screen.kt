@@ -12,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 
-class TransactionHistoryActivity : AppCompatActivity() {
+class TransactionHistoryActivity : SecureActivity() {
 
     private lateinit var adapter: TransactionAdapter
     private lateinit var repository: FincoopRepository

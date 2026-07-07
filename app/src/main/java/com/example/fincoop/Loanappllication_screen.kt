@@ -1,13 +1,16 @@
 package com.example.fincoop
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.EditText
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import com.google.android.gms.location.LocationServices
+import com.google.android.material.snackbar.Snackbar
 
-class LoanApplicationActivity : AppCompatActivity() {
+class LoanApplicationActivity : SecureActivity() {
 
     private lateinit var etAmount: EditText
     private lateinit var etMonths: EditText
@@ -18,6 +21,7 @@ class LoanApplicationActivity : AppCompatActivity() {
     private lateinit var tvResult: TextView
     private lateinit var tvStatus: TextView
     private lateinit var cbTerms: CheckBox
+    private val repository by lazy { FincoopRepository(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,7 +75,39 @@ class LoanApplicationActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            tvStatus.text = getString(R.string.loan_applied_success)
+            // Record location and save loan "transaction"
+            val amount = etAmount.text.toString().toDoubleOrNull() ?: 0.0
+            
+            if (PermissionHelper.hasLocationPermission(this)) {
+                if (PermissionHelper.isLocationEnabled(this)) {
+                    LocationServices.getFusedLocationProviderClient(this).lastLocation.addOnSuccessListener { location ->
+                        val lat = location?.latitude
+                        val lng = location?.longitude
+                        
+                        if (lat != null && lng != null) {
+                            repository.saveCurrentLocation(lat, lng)
+                        }
+
+                        val transaction = Transaction(
+                            type = TransactionType.CHAMA_CONTRIBUTION, // or a LOAN type if available
+                            amount = amount,
+                            description = "Loan Application: $reason",
+                            lat = lat,
+                            lng = lng
+                        )
+                        repository.addTransaction(transaction)
+                        tvStatus.text = getString(R.string.loan_applied_success) + "\n(Location recorded)"
+                    }
+                } else {
+                    Snackbar.make(btnApply, "Please turn on your GPS to apply for a loan.", Snackbar.LENGTH_LONG)
+                        .setAction("Turn On") {
+                            startActivity(Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                        }.show()
+                }
+            } else {
+                PermissionHelper.requestLocationPermissions(this, 1001)
+                Snackbar.make(btnApply, "Location access is required to apply for a loan.", Snackbar.LENGTH_LONG).show()
+            }
         }
     }
 }

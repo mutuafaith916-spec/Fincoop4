@@ -6,6 +6,7 @@ import android.util.Patterns
 import android.view.View
 import android.widget.*
 import androidx.activity.viewModels
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +14,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputEditText
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 class LoginViewModel(private val repository: FincoopRepository) : ViewModel() {
@@ -63,6 +65,48 @@ class LoginActivity : SecureActivity() {
         findViewById<TextView>(R.id.txtCreateAccount).setOnClickListener {
             startActivity(Intent(this, RegisterActivity::class.java))
         }
+
+        findViewById<TextView>(R.id.txtForgotPassword).setOnClickListener {
+            showForgotPasswordDialog()
+        }
+    }
+
+    private fun showForgotPasswordDialog() {
+        val emailInput = EditText(this).apply {
+            hint = "Enter your registered email"
+            inputType = android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+        }
+        val container = LinearLayout(this).apply {
+            orientation = LinearLayout.VERTICAL
+            setPadding(60, 20, 60, 0)
+            addView(emailInput)
+        }
+
+        AlertDialog.Builder(this)
+            .setTitle("Forgot Password")
+            .setMessage("We will send a password reset link to your email.")
+            .setView(container)
+            .setPositiveButton("Send Link") { _, _ ->
+                val email = emailInput.text.toString().trim()
+                if (email.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                    FirebaseAuth.getInstance().sendPasswordResetEmail(email)
+                        .addOnCompleteListener { task ->
+                            if (task.isSuccessful) {
+                                showSnackbar("Reset link sent to your email.")
+                            } else {
+                                showSnackbar("Error: ${task.exception?.message}")
+                            }
+                        }
+                } else {
+                    showSnackbar("Please enter a valid email address.")
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
+    }
+
+    private fun showSnackbar(message: String) {
+        Snackbar.make(findViewById(android.R.id.content), message, Snackbar.LENGTH_LONG).show()
     }
 
     private fun validateInput(email: String, password: String): Boolean {
